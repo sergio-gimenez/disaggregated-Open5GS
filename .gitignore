@@ -1,2 +1,4 @@
 seed_imgs
 vms
+*.img
+*.log
