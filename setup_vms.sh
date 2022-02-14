@@ -38,29 +38,29 @@ function remove_services() {
 }
 
 function setup_networking() {
-    PATH=/etc/open5gs
+    O5GS_CNF_PATH=/etc/open5gs
 
     if [ "$1" == "vm1" ]; then
-        rm PATH/mme.yaml
-        mv net_conf/mme.yaml PATH/
+        rm $O5GS_CNF_PATH/mme.yaml
+        cp net_conf/mme.yaml $O5GS_CNF_PATH/
 
-        rm PATH/sgwc.yaml
-        mv net_conf/sgwc.yaml PATH/
+        rm $O5GS_CNF_PATH/sgwc.yaml
+        cp net_conf/sgwc.yaml $O5GS_CNF_PATH/
 
-        rm PATH/smf.yaml
-        mv net_conf/smf.yaml PATH/
+        rm $O5GS_CNF_PATH/smf.yaml
+        cp net_conf/smf.yaml $O5GS_CNF_PATH/
     fi
 
     if [ "$1" == "vm2" ]; then
         mv net_conf/vm2_sgwu.yaml net_conf/sgwu.yaml
-        rm PATH/sgwu.yaml
-        mv net_conf/sgwu.yaml PATH/
+        rm $O5GS_CNF_PATH/sgwu.yaml
+        cp net_conf/sgwu.yaml $O5GS_CNF_PATH/
     fi
 
     if [ "$1" == "vm3" ]; then
         mv net_conf/vm3_sgwu.yaml net_conf/sgwu.yaml
-        rm PATH/sgwu.yaml
-        mv net_conf/sgwu.yaml PATH/
+        rm $O5GS_CNF_PATH/sgwu.yaml
+        cp net_conf/sgwu.yaml $O5GS_CNF_PATH/
     fi
 }
 
@@ -93,5 +93,5 @@ function setup_services() {
     display_services
 }
 
-setup_services $1
 setup_networking $1
+setup_services $1
