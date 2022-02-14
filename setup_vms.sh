@@ -55,12 +55,20 @@ function setup_networking() {
         mv net_conf/vm2_sgwu.yaml net_conf/sgwu.yaml
         rm $O5GS_CNF_PATH/sgwu.yaml
         cp net_conf/sgwu.yaml $O5GS_CNF_PATH/
+
+        mv net_conf/vm2_upf.yaml net_conf/upf.yaml
+        rm $O5GS_CNF_PATH/upf.yaml
+        cp net_conf/upf.yaml $O5GS_CNF_PATH/
     fi
 
     if [ "$1" == "vm3" ]; then
         mv net_conf/vm3_sgwu.yaml net_conf/sgwu.yaml
         rm $O5GS_CNF_PATH/sgwu.yaml
         cp net_conf/sgwu.yaml $O5GS_CNF_PATH/
+
+        mv net_conf/vm3_upf.yaml net_conf/upf.yaml
+        rm $O5GS_CNF_PATH/upf.yaml
+        cp net_conf/upf.yaml $O5GS_CNF_PATH/
     fi
 }
 
