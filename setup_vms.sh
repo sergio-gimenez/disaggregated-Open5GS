@@ -41,13 +41,30 @@ function setup_networking() {
     PATH=/etc/open5gs
 
     if [ "$1" == "vm1" ]; then
-    
+        rm PATH/mme.yaml
+        mv net_conf/mme.yaml PATH/
 
-    fi 
-    
+        rm PATH/sgwc.yaml
+        mv net_conf/sgwc.yaml PATH/
+
+        rm PATH/smf.yaml
+        mv net_conf/smf.yaml PATH/
+    fi
+
+    if [ "$1" == "vm2" ]; then
+        mv net_conf/vm2_sgwu.yaml net_conf/sgwu.yaml
+        rm PATH/sgwu.yaml
+        mv net_conf/sgwu.yaml PATH/
+    fi
+
+    if [ "$1" == "vm3" ]; then
+        mv net_conf/vm3_sgwu.yaml net_conf/sgwu.yaml
+        rm PATH/sgwu.yaml
+        mv net_conf/sgwu.yaml PATH/
+    fi
 }
 
-function setup_vm() {
+function setup_services() {
     remove_services
 
     if [ "$1" == "vm1" ]; then
@@ -76,4 +93,5 @@ function setup_vm() {
     display_services
 }
 
-setup_vm $1
+setup_services $1
+setup_networking $1
