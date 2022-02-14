@@ -23,6 +23,11 @@ if [[ "$EUID" -ne 0 ]]; then
     exit 1
 fi
 
+function display_services() {
+    echo "Active services:"
+    echo "$(systemctl list-units | grep open5gs)"
+}
+
 function remove_services() {
     OPEN5GS_SERVICES=$(systemctl list-unit-files | grep open5gs | awk '{print $1}')
 
@@ -50,6 +55,15 @@ function setup_vm() {
         systemctl enable open5gs-pcrfd
         systemctl start open5gs-pcrfd
     fi
+
+    if [ "$1" == "vm2" ] || [ "$1" == "vm3" ]; then
+        systemctl enable open5gs-sgwud
+        systemctl start open5gs-sgwud
+        systemctl enable open5gs-upfd
+        systemctl start open5gs-upfd
+    fi
+
+    display_services
 }
 
 setup_vm $1
