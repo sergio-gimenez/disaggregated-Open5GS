@@ -37,6 +37,16 @@ function remove_services() {
     done
 }
 
+function setup_networking() {
+    PATH=/etc/open5gs
+
+    if [ "$1" == "vm1" ]; then
+    
+
+    fi 
+    
+}
+
 function setup_vm() {
     remove_services
 
