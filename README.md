@@ -122,11 +122,21 @@ sudo qemu-system-x86_64 \
 -device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2023-:22
 ```
 
+```source
+sudo qemu-system-x86_64 \
+~/i2cat/disaggregated-Open5GS/vm4.img \
+-m 2G --nographic --enable-kvm -cpu host \
+-serial file:vm4.log \
+-device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2024-:22
+```
+
 To connect via ssh:
 
 ```source
-ssh ubuntu@localhost -p 2022
+ssh ubuntu@localhost -p 202X
 ```
+
+where X is the VM number.
 
 References used and nice to check:
 
