@@ -10,16 +10,16 @@ if [[ ($# == "--help") || $# == "-h" ]]; then
     exit 0
 fi
 
+# display usage if the script is not run as root user
+if [[ "$EUID" -ne 0 ]]; then
+    echo "This script must be run as root!"
+    exit 1
+fi
+
 # if less than two arguments supplied, display usage
 if [ $# -le 0 ]; then
     echo "This script must be run with at least one argument."
     display_usage
-    exit 1
-fi
-
-# display usage if the script is not run as root user
-if [[ "$EUID" -ne 0 ]]; then
-    echo "This script must be run as root!"
     exit 1
 fi
 
@@ -60,20 +60,20 @@ function setup_networking() {
         rm $O5GS_CNF_PATH/upf.yaml
         cp net_conf/upf.yaml $O5GS_CNF_PATH/
 
-        # sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-        # sysctl -p
+        sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+        sysctl -p
 
-        # ip tuntap add name ogstun mode tun
-        # ip addr add 10.45.0.1/16 dev ogstun
-        # ip link set ogstun up
+        ip tuntap add name ogstun1 mode tun
+        ip addr add 10.45.0.1/16 dev ogstun1
+        ip link set ogstun1 up
 
-        # iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun -j MASQUERADE
+        iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun1 -j MASQUERADE
 
-        # ip tuntap add name ogstun2 mode tun
-        # ip addr add 10.46.0.1/16 dev ogstun2
-        # ip link set ogstun2 up
+        ip tuntap add name ogstun2 mode tun
+        ip addr add 10.46.0.1/16 dev ogstun2
+        ip link set ogstun2 up
 
-        # iptables -t nat -A POSTROUTING -s 10.46.0.0/16 ! -o ogstun2 -j MASQUERADE
+        iptables -t nat -A POSTROUTING -s 10.46.0.0/16 ! -o ogstun2 -j MASQUERADE
     fi
 
     if [ "$1" == "vm3" ]; then
@@ -85,18 +85,18 @@ function setup_networking() {
         rm $O5GS_CNF_PATH/upf.yaml
         cp net_conf/upf.yaml $O5GS_CNF_PATH/
 
-        # sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-        # sysctl -p
+        sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+        sysctl -p
 
-        # ip tuntap add name ogstun3 mode tun
-        # ip addr add 10.47.0.1/16 dev ogstun3
-        # ip link set ogstun3 up
+        ip tuntap add name ogstun3 mode tun
+        ip addr add 10.47.0.1/16 dev ogstun3
+        ip link set ogstun3 up
 
-        # iptables -t nat -A POSTROUTING -s 10.47.0.0/16 ! -o ogstun3 -j MASQUERADE
+        iptables -t nat -A POSTROUTING -s 10.47.0.0/16 ! -o ogstun3 -j MASQUERADE
     fi
 }
 
-function setup_services() {    
+function setup_services() {
     if [ "$1" == "vm1" ]; then
         systemctl enable open5gs-nrfd
         systemctl start open5gs-nrfd
