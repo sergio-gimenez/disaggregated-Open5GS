@@ -59,6 +59,21 @@ function setup_networking() {
         mv net_conf/vm2_upf.yaml net_conf/upf.yaml
         rm $O5GS_CNF_PATH/upf.yaml
         cp net_conf/upf.yaml $O5GS_CNF_PATH/
+
+        # sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+        # sysctl -p
+
+        # ip tuntap add name ogstun mode tun
+        # ip addr add 10.45.0.1/16 dev ogstun
+        # ip link set ogstun up
+
+        # iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun -j MASQUERADE
+
+        # ip tuntap add name ogstun2 mode tun
+        # ip addr add 10.46.0.1/16 dev ogstun2
+        # ip link set ogstun2 up
+
+        # iptables -t nat -A POSTROUTING -s 10.46.0.0/16 ! -o ogstun2 -j MASQUERADE
     fi
 
     if [ "$1" == "vm3" ]; then
@@ -69,12 +84,19 @@ function setup_networking() {
         mv net_conf/vm3_upf.yaml net_conf/upf.yaml
         rm $O5GS_CNF_PATH/upf.yaml
         cp net_conf/upf.yaml $O5GS_CNF_PATH/
+
+        # sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+        # sysctl -p
+
+        # ip tuntap add name ogstun3 mode tun
+        # ip addr add 10.47.0.1/16 dev ogstun3
+        # ip link set ogstun3 up
+
+        # iptables -t nat -A POSTROUTING -s 10.47.0.0/16 ! -o ogstun3 -j MASQUERADE
     fi
 }
 
-function setup_services() {
-    remove_services
-
+function setup_services() {    
     if [ "$1" == "vm1" ]; then
         systemctl enable open5gs-nrfd
         systemctl start open5gs-nrfd
@@ -101,5 +123,6 @@ function setup_services() {
     display_services
 }
 
+remove_services
 setup_networking $1
 setup_services $1
