@@ -95,7 +95,8 @@ sudo qemu-system-x86_64 \
 ~/i2cat/disaggregated-Open5GS/vm1.img \
 -m 2G --nographic --enable-kvm -cpu host \
 -serial file:vm1.log \
--device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::20021-:22
+-device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::20021-:22 \
+
 ```
 
 ```source
@@ -103,7 +104,8 @@ sudo qemu-system-x86_64 \
 -hda ~/i2cat/disaggregated-Open5GS/vm1.img \
 -m 2G --nographic --enable-kvm -cpu host \
 -serial file:vm1.log \
--device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2021-:22
+-device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2021-:22 \
+-device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:01:01,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm1,id=data1,script=no,downscript=no
 ```
 
 ```source
@@ -111,7 +113,9 @@ sudo qemu-system-x86_64 \
 ~/i2cat/disaggregated-Open5GS/vm2.img \
 -m 2G --nographic --enable-kvm -cpu host \
 -serial file:vm2.log \
--device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2022-:22
+-device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2022-:22 \
+-device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:02:01,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm2.1,id=data1,script=no,
+-device virtio-net-pci,netdev=data2,mac=00:0a:0a:0a:02:01,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm2.2,id=data2,script=no,downscript=no
 ```
 
 ```source

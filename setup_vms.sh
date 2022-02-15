@@ -63,17 +63,11 @@ function setup_networking() {
         sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
         sysctl -p
 
-        ip tuntap add name ogstun1 mode tun
-        ip addr add 10.45.0.1/16 dev ogstun1
-        ip link set ogstun1 up
-
         iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun1 -j MASQUERADE
 
-        ip tuntap add name ogstun2 mode tun
-        ip addr add 10.46.0.1/16 dev ogstun2
-        ip link set ogstun2 up
+        # ip link set ogstun2 up
 
-        iptables -t nat -A POSTROUTING -s 10.46.0.0/16 ! -o ogstun2 -j MASQUERADE
+        # iptables -t nat -A POSTROUTING -s 10.46.0.0/16 ! -o ogstun2 -j MASQUERADE
     fi
 
     if [ "$1" == "vm3" ]; then
