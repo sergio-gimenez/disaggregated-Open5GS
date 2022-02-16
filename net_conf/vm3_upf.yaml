@@ -155,10 +155,9 @@ upf:
   gtpu:
     - addr: 127.0.0.7
   subnet:
-    - addr: 10.45.0.1/16
     - addr: 10.47.0.1/16
       dnn: ims
-      dev: ogstun3
+      dev: ens5
 
 #
 # smf:

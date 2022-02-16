@@ -79,3 +79,4 @@ if [ "$1" == "vm2" ]; then
         -device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:02:01 -netdev tap,ifname=d.01,id=data1,script=no,downscript=no \
         -device virtio-net-pci,netdev=data2,mac=00:0a:0a:0a:02:02 -netdev tap,ifname=d.02,id=data2,script=no,downscript=no
 fi
+

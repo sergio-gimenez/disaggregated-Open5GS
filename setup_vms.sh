@@ -60,10 +60,10 @@ function setup_networking() {
         rm $O5GS_CNF_PATH/upf.yaml
         cp net_conf/upf.yaml $O5GS_CNF_PATH/
 
-        sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-        sysctl -p
+        # sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+        # sysctl -p
 
-        iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun1 -j MASQUERADE
+        # iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun1 -j MASQUERADE
 
         # ip link set ogstun2 up
 
