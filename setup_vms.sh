@@ -39,45 +39,47 @@ function remove_services() {
 
 function setup_networking() {
     O5GS_CNF_PATH=/etc/open5gs
+    PWD=$(pwd)
 
     if [ "$1" == "vm1" ]; then
         rm $O5GS_CNF_PATH/mme.yaml
-        cp net_conf/mme.yaml $O5GS_CNF_PATH/
+        cp $PWD/net_conf/mme.yaml $O5GS_CNF_PATH/
 
         rm $O5GS_CNF_PATH/sgwc.yaml
-        cp net_conf/sgwc.yaml $O5GS_CNF_PATH/
+        cp $PWD/net_conf/sgwc.yaml $O5GS_CNF_PATH/
 
         rm $O5GS_CNF_PATH/smf.yaml
-        cp net_conf/smf.yaml $O5GS_CNF_PATH/
+        cp $PWD/net_conf/smf.yaml $O5GS_CNF_PATH/
     fi
 
     if [ "$1" == "vm2" ]; then
-        mv net_conf/vm2_sgwu.yaml net_conf/sgwu.yaml
+        mv $PWD/net_conf/vm2_sgwu.yaml net_conf/sgwu.yaml
         rm $O5GS_CNF_PATH/sgwu.yaml
-        cp net_conf/sgwu.yaml $O5GS_CNF_PATH/
+        cp $PWD/net_conf/sgwu.yaml $O5GS_CNF_PATH/
 
-        mv net_conf/vm2_upf.yaml net_conf/upf.yaml
+        mv $PWD/net_conf/vm2_upf.yaml net_conf/upf.yaml
         rm $O5GS_CNF_PATH/upf.yaml
-        cp net_conf/upf.yaml $O5GS_CNF_PATH/
+        cp $PWD/net_conf/upf.yaml $O5GS_CNF_PATH/
 
-        # sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-        # sysctl -p
+        set -x
+        sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+        sysctl -p
 
-        # iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun1 -j MASQUERADE
+        ip link set ens4 up
+        iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ens4 -j MASQUERADE
 
-        # ip link set ogstun2 up
-
-        # iptables -t nat -A POSTROUTING -s 10.46.0.0/16 ! -o ogstun2 -j MASQUERADE
+        ip link set ens5 up
+        iptables -t nat -A POSTROUTING -s 10.46.0.0/16 ! -o ens5 -j MASQUERADE
     fi
 
     if [ "$1" == "vm3" ]; then
-        mv net_conf/vm3_sgwu.yaml net_conf/sgwu.yaml
+        mv $PWD/net_conf/vm3_sgwu.yaml net_conf/sgwu.yaml
         rm $O5GS_CNF_PATH/sgwu.yaml
-        cp net_conf/sgwu.yaml $O5GS_CNF_PATH/
+        cp $PWD/net_conf/sgwu.yaml $O5GS_CNF_PATH/
 
-        mv net_conf/vm3_upf.yaml net_conf/upf.yaml
+        mv $PWD/net_conf/vm3_upf.yaml net_conf/upf.yaml
         rm $O5GS_CNF_PATH/upf.yaml
-        cp net_conf/upf.yaml $O5GS_CNF_PATH/
+        cp $PWD/net_conf/upf.yaml $O5GS_CNF_PATH/
 
         sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
         sysctl -p
