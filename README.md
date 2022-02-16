@@ -31,7 +31,7 @@ qemu-img resize clean_open5gs.img +22G
 Build a cloud init image from a conf file:
 
 ```source
-cloud-localds open5gs_init.img user_data.yaml
+cloud-localds open5gs_init.img user_data.yaml 
 ```
 
 Instantiate the image:
@@ -114,8 +114,8 @@ sudo qemu-system-x86_64 \
 -m 2G --nographic --enable-kvm -cpu host \
 -serial file:vm2.log \
 -device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2022-:22 \
--device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:02:01,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm2.1,id=data1,script=no,
--device virtio-net-pci,netdev=data2,mac=00:0a:0a:0a:02:01,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm2.2,id=data2,script=no,downscript=no
+-device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:02:01,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm2.1,id=data1,script=no,downscript=no \
+-device virtio-net-pci,netdev=data2,mac=00:0a:0a:0a:02:02,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm2.2,id=data2,script=no,downscript=no
 ```
 
 ```source

@@ -16,7 +16,7 @@ if [[ "$EUID" -ne 0 ]]; then
     exit 1
 fi
 
-# if less than two arguments supplied, display usage
+# if less than one arguments supplied, display usage
 if [ $# -le 0 ]; then
     echo "This script must be run with at least one argument."
     display_usage
