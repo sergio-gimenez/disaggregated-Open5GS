@@ -71,9 +71,10 @@ cloud-localds "$CUR_PATH"/seed_"$1".img "$CUR_PATH"/user-data.yaml
 # Boot the VM
 if [ "$1" == "vm1" ]; then
     sudo qemu-system-x86_64 \
-        -hda ~/i2cat/disaggregated-Open5GS/vm1.img \
-        -m 2G --nographic --enable-kvm -cpu host \
-        -serial file:vm1.log \
+        -hda "$CUR_PATH"/"$1".img \
+        -hdb "$CUR_PATH"/seed_"$1".img \
+        -m 2G --enable-kvm \
+        -serial file:"$1".log \
         -device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2021-:22 \
         -device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:01:01,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm1.cp,id=data1,script=no,downscript=no
 fi
@@ -94,9 +95,10 @@ fi
 # Boot the VM
 if [ "$1" == "vm3" ]; then
     sudo qemu-system-x86_64 \
-        ~/i2cat/disaggregated-Open5GS/vm3.img \
-        -m 2G --nographic --enable-kvm -cpu host \
-        -serial file:vm3.log \
+        -hda "$CUR_PATH"/"$1".img \
+        -hdb "$CUR_PATH"/seed_"$1".img \
+        -m 2G --enable-kvm \
+        -serial file:"$1".log \
         -device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2023-:22 \
         -device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:03:01 -netdev tap,ifname=vm3.1,id=data1,script=no,downscript=no \
         -device virtio-net-pci,netdev=data2,mac=00:0a:0a:0a:02:03 -netdev tap,ifname=vm3.cp,id=data2,script=no,downscript=no

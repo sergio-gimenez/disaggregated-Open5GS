@@ -134,6 +134,7 @@ function setup_services() {
     display_services
 }
 
+# Install open5gs from apt repository
 if [ "$(dpkg -l | awk '/open5gs/ {print }' | wc -l)" -lt 1 ]; then
     sudo apt update
     sudo add-apt-repository ppa:open5gs/latest -y
@@ -141,6 +142,12 @@ if [ "$(dpkg -l | awk '/open5gs/ {print }' | wc -l)" -lt 1 ]; then
     sudo apt install open5gs -y
 fi
 
-remove_services
-setup_networking $1
-setup_services $1
+if [ "$2" == "setup-net" ]; then
+    setup_networking $1
+fi
+
+if [ "$2" == "start" ]; then
+    remove_services
+    sleep 2
+    setup_services $1
+fi
