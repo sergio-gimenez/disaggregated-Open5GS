@@ -6,20 +6,43 @@ if [[ "$EUID" -ne 0 ]]; then
     exit 1
 fi
 
-if [ "$(dpkg -l | awk '/bridge-utils/ {print }' | wc -l)" -lt 1 ]; then
-    apt install bridge-utils
+if [ $# -le 0 ]; then
+    echo "This script must be run with at least one argument."
+    exit 1
 fi
 
-sudo brctl addbr cpbr
-sudo ip link set cpbr up
+set +x
 
-sudo ip link set vm1.cp up
-sudo brctl addif cpbr vm1.cp
+if [ "$1" == "up" ]; then
 
-sudo ip link set vm2.cp up
-sudo brctl addif cpbr vm2.cp
+    if [ "$(dpkg -l | awk '/bridge-utils/ {print }' | wc -l)" -lt 1 ]; then
+        apt install bridge-utils
+    fi
 
-sudo ip link set vm3.cp up
-sudo brctl addif cpbr vm3.cp
+    sudo brctl addbr cpbr
+    sudo ip link set cpbr up
 
+    sudo ip link set vm1.cp up
+    sudo brctl addif cpbr vm1.cp
 
+    sudo ip link set vm2.cp up
+    sudo brctl addif cpbr vm2.cp
+
+    sudo ip link set vm3.cp up
+    sudo brctl addif cpbr vm3.cp
+    brctl show cpbr
+fi
+
+if [ "$1" == "down" ]; then
+    # sudo ip link set vm1.cp down
+    # sudo brctl delif cpbr vm1.cp
+
+    # sudo ip link set vm2.cp down
+    # sudo brctl delif cpbr vm2.cp
+
+    # sudo ip link set vm3.cp down
+    # sudo brctl delif cpbr vm3.cp
+
+    sudo ip link set cpbr down
+    sudo brctl delbr cpbr
+fi
