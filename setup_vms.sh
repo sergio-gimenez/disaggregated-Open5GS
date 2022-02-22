@@ -50,6 +50,11 @@ function setup_networking() {
 
         rm $O5GS_CNF_PATH/smf.yaml
         cp $PWD/net_conf/smf.yaml $O5GS_CNF_PATH/
+
+        set -x
+        ip addr add 192.168.1.111/24 dev ens4
+        ip link set ens4 up
+        set +x
     fi
 
     if [ "$1" == "vm2" ]; then
@@ -62,14 +67,20 @@ function setup_networking() {
         cp $PWD/net_conf/upf.yaml $O5GS_CNF_PATH/
 
         set -x
+        ip addr add 192.168.1.112/24 dev ens6
+        ip link set ens6 up
+
         sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
         sysctl -p
 
         ip link set ens4 up
+        ip addr add 10.45.0.1/16 dev ens4
         iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ens4 -j MASQUERADE
 
         ip link set ens5 up
+        ip addr add 10.45.0.1/16 dev ens5
         iptables -t nat -A POSTROUTING -s 10.46.0.0/16 ! -o ens5 -j MASQUERADE
+        set +x
     fi
 
     if [ "$1" == "vm3" ]; then
@@ -81,14 +92,18 @@ function setup_networking() {
         rm $O5GS_CNF_PATH/upf.yaml
         cp $PWD/net_conf/upf.yaml $O5GS_CNF_PATH/
 
+        set -x
+        ip addr add 192.168.1.113/24 dev ens5
+        ip link set ens5 up
+
         sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
         sysctl -p
 
-        ip tuntap add name ogstun3 mode tun
-        ip addr add 10.47.0.1/16 dev ogstun3
-        ip link set ogstun3 up
+        ip addr add 10.47.0.1/16 dev ens4
+        ip link set ens4 up
 
-        iptables -t nat -A POSTROUTING -s 10.47.0.0/16 ! -o ogstun3 -j MASQUERADE
+        iptables -t nat -A POSTROUTING -s 10.47.0.0/16 ! -o ens4 -j MASQUERADE
+        set +x
     fi
 }
 
@@ -118,6 +133,13 @@ function setup_services() {
 
     display_services
 }
+
+if [ "$(dpkg -l | awk '/open5gs/ {print }' | wc -l)" -lt 1 ]; then
+    sudo apt update
+    sudo add-apt-repository ppa:open5gs/latest -y
+    sudo apt update
+    sudo apt install open5gs -y
+fi
 
 remove_services
 setup_networking $1
