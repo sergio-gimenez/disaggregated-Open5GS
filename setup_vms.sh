@@ -1,7 +1,7 @@
 #!/bin/bash
 
 display_usage() {
-    echo -e "\nUsage: $0 [vm1 vm2 vm3] \n"
+    echo -e "\nUsage: $0 [vm1 vm2 vm3] [setup-net start]\n"
 }
 
 # check whether user had supplied -h or --help . If yes display usage
@@ -16,9 +16,9 @@ if [[ "$EUID" -ne 0 ]]; then
     exit 1
 fi
 
-# if less than one arguments supplied, display usage
-if [ $# -le 0 ]; then
-    echo "This script must be run with at least one argument."
+# if less than two arguments supplied, display usage
+if [ $# -le 1 ]; then
+    echo "This script must be run with at least two arguments."
     display_usage
     exit 1
 fi
@@ -52,7 +52,7 @@ function setup_networking() {
         cp $PWD/net_conf/smf.yaml $O5GS_CNF_PATH/
 
         set -x
-        ip addr add 192.168.1.111/24 dev ens4
+        ip addr add 192.168.0.111/24 dev ens4
         ip link set ens4 up
         set +x
     fi
@@ -67,7 +67,7 @@ function setup_networking() {
         cp $PWD/net_conf/upf.yaml $O5GS_CNF_PATH/
 
         set -x
-        ip addr add 192.168.1.112/24 dev ens6
+        ip addr add 192.168.0.112/24 dev ens6
         ip link set ens6 up
 
         sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
@@ -93,7 +93,7 @@ function setup_networking() {
         cp $PWD/net_conf/upf.yaml $O5GS_CNF_PATH/
 
         set -x
-        ip addr add 192.168.1.113/24 dev ens5
+        ip addr add 192.168.0.113/24 dev ens5
         ip link set ens5 up
 
         sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
@@ -134,7 +134,7 @@ function setup_services() {
     display_services
 }
 
-# Install open5gs from apt repository
+# Install open5gs from apt repository (if not installed)
 if [ "$(dpkg -l | awk '/open5gs/ {print }' | wc -l)" -lt 1 ]; then
     sudo apt update
     sudo add-apt-repository ppa:open5gs/latest -y
@@ -144,10 +144,15 @@ fi
 
 if [ "$2" == "setup-net" ]; then
     setup_networking $1
+    exit
 fi
 
 if [ "$2" == "start" ]; then
     remove_services
     sleep 2
     setup_services $1
+    exit
 fi
+
+echo "Please specify a valid argument."
+display_usage
