@@ -135,6 +135,7 @@ function setup_services() {
 }
 
 # Install open5gs from apt repository (if not installed)
+echo "Installing Open5GS: "
 if [ "$(dpkg -l | awk '/open5gs/ {print }' | wc -l)" -lt 1 ]; then
     sudo apt update
     sudo add-apt-repository ppa:open5gs/latest -y
