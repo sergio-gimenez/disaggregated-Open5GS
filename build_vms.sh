@@ -101,5 +101,5 @@ if [ "$1" == "vm3" ]; then
         -serial file:"$1".log \
         -device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2023-:22 \
         -device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:03:01 -netdev tap,ifname=vm3.1,id=data1,script=no,downscript=no \
-        -device virtio-net-pci,netdev=data2,mac=00:0a:0a:0a:02:03 -netdev tap,ifname=vm3.cp,id=data2,script=no,downscript=no
+        -device virtio-net-pci,netdev=data2,mac=00:0a:0a:0a:03:03 -netdev tap,ifname=vm3.cp,id=data2,script=no,downscript=no
 fi
