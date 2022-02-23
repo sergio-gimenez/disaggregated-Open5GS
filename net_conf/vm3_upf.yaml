@@ -157,7 +157,7 @@ upf:
   subnet:
     - addr: 10.47.0.1/16
       dnn: ims
-      dev: ens5
+      dev: ogstun3
 
 #
 # smf:
