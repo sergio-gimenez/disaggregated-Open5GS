@@ -3,3 +3,4 @@ vms
 *.img
 *.log
 old_*
+*.pid
