@@ -154,11 +154,6 @@ if [ "$(dpkg -l | awk '/open5gs/ {print }' | wc -l)" -lt 1 ]; then
     sudo apt install open5gs -y
 fi
 
-if [ "$(dpkg -l | awk '/bridge-utils/ {print }' | wc -l)" -lt 1 ]; then
-    echo " bridge-utils not installed, installing... "
-    apt install bridge-utils
-fi
-
 if [ "$2" == "setup-net" ]; then
     setup_networking $1
     exit
