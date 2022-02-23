@@ -157,10 +157,10 @@ upf:
   subnet:
     - addr: 10.45.0.1/16
       dnn: internet
-      dev: ens4
+      dev: ogstun
     - addr: 10.46.0.1/16
       dnn: internet2
-      dev: ens5
+      dev: ogstun2
 #
 # smf:
 #

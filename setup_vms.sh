@@ -11,7 +11,7 @@ if [[ ($# == "--help") || $# == "-h" ]]; then
 fi
 
 # display usage if the script is not run as root user
-if [[ "$EUID" -ne 0 ]]; then
+if [[ "$EUID" -ne 0 && ("$2" == "start" || "$2" == "setup-net") ]]; then
     echo "This script must be run as root!"
     exit 1
 fi
@@ -67,19 +67,26 @@ function setup_networking() {
         cp $PWD/net_conf/upf.yaml $O5GS_CNF_PATH/
 
         set -x
-        ip addr add 192.168.0.112/24 dev ens6
-        ip link set ens6 up
+        # Add the IP address and enable the CP interface
+        ip addr add 192.168.0.112/24 dev ens4
+        ip link set ens4 up
 
+        # Enable IP forwarding
         sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
         sysctl -p
 
-        ip link set ens4 up
-        ip addr add 10.45.0.1/16 dev ens4
-        iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ens4 -j MASQUERADE
+        # Create the tun interfaces to enable p2p for GTP
+        ip tuntap add name ogstun mode tun
+        ip addr add 10.45.0.1/16 dev ogstun
+        ip link set ogstun up
 
-        ip link set ens5 up
-        ip addr add 10.45.0.1/16 dev ens5
-        iptables -t nat -A POSTROUTING -s 10.46.0.0/16 ! -o ens5 -j MASQUERADE
+        iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun -j MASQUERADE
+
+        ip tuntap add name ogstun2 mode tun
+        ip addr add 10.46.0.1/16 dev ogstun2
+        ip link set ogstun2 up
+
+        iptables -t nat -A POSTROUTING -s 10.46.0.0/16 ! -o ogstun2 -j MASQUERADE
         set +x
     fi
 
@@ -93,16 +100,20 @@ function setup_networking() {
         cp $PWD/net_conf/upf.yaml $O5GS_CNF_PATH/
 
         set -x
-        ip addr add 192.168.0.113/24 dev ens5
-        ip link set ens5 up
-
-        sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-        sysctl -p
-
-        ip addr add 10.47.0.1/16 dev ens4
+        # Enable the CP interface
+        ip addr add 192.168.0.113/24 dev ens4
         ip link set ens4 up
 
-        iptables -t nat -A POSTROUTING -s 10.47.0.0/16 ! -o ens4 -j MASQUERADE
+        # Create the tun interfaces to enable p2p for GTP
+        ip tuntap add name ogstun3 mode tun
+        ip addr add 10.47.0.1/16 dev ogstun3
+        ip link set ogstun3 up
+
+        # Enable IP forwarding and NAPT.
+        # This seems like is enough to enable that the private IP network can talk with a destination public IP network.
+        sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+        sysctl -p
+        iptables -t nat -A POSTROUTING -s 10.47.0.0/16 ! -o ogstun3 -j MASQUERADE
         set +x
     fi
 }
@@ -135,8 +146,8 @@ function setup_services() {
 }
 
 # Install open5gs from apt repository (if not installed)
-echo "Installing Open5GS: "
 if [ "$(dpkg -l | awk '/open5gs/ {print }' | wc -l)" -lt 1 ]; then
+    echo " Open5GS not installed, installing... "
     sudo apt update
     sudo add-apt-repository ppa:open5gs/latest -y
     sudo apt update

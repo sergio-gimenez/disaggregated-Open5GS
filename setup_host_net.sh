@@ -19,6 +19,7 @@ if [ "$1" == "up" ]; then
         apt install bridge-utils
     fi
 
+    # Control Plane Bridge
     sudo brctl addbr cpbr
     sudo ip link set cpbr up
 
@@ -30,7 +31,8 @@ if [ "$1" == "up" ]; then
 
     sudo ip link set vm3.cp up
     sudo brctl addif cpbr vm3.cp
-    brctl show cpbr
+
+    brctl show
 fi
 
 if [ "$1" == "down" ]; then
