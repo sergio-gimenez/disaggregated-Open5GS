@@ -76,7 +76,7 @@ if [ "$1" == "vm1" ]; then
         -m 2G --enable-kvm \
         -serial file:"$1".log \
         -device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2021-:22 \
-        -device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:01:01 -netdev tap,ifname=vm1.cp,id=data1,script=no,downscript=no
+        -device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:01:01,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm1.cp,id=data1,script=no,downscript=no
 fi
 
 # Boot the VM

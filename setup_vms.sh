@@ -68,7 +68,7 @@ function setup_networking() {
 
         set -x
         # Add the IP address and enable the CP interface
-        ip addr add 192.168.0.112/24 dev ens6
+        ip addr add 192.168.0.112/24 dev ens4
         ip link set ens4 up
 
         # Enable IP forwarding
@@ -101,7 +101,7 @@ function setup_networking() {
 
         set -x
         # Enable the CP interface
-        ip addr add 192.168.0.113/24 dev ens5
+        ip addr add 192.168.0.113/24 dev ens4
         ip link set ens4 up
 
         # Create the tun interfaces to enable p2p for GTP
