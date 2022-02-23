@@ -172,12 +172,17 @@ function setup_services() {
 }
 
 # Install open5gs from apt repository (if not installed)
-echo "Installing Open5GS: "
 if [ "$(dpkg -l | awk '/open5gs/ {print }' | wc -l)" -lt 1 ]; then
+    echo " Open5GS not installed, installing... "
     sudo apt update
     sudo add-apt-repository ppa:open5gs/latest -y
     sudo apt update
     sudo apt install open5gs -y
+fi
+
+if [ "$(dpkg -l | awk '/bridge-utils/ {print }' | wc -l)" -lt 1 ]; then
+    echo " bridge-utils not installed, installing... "
+    apt install bridge-utils
 fi
 
 if [ "$2" == "setup-net" ]; then
