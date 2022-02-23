@@ -11,7 +11,7 @@ if [[ ($# == "--help") || $# == "-h" ]]; then
 fi
 
 # display usage if the script is not run as root user
-if [[ "$EUID" -ne 0 ]]; then
+if [[ "$EUID" -ne 0 && ("$2" == "start" || "$2" == "setup-net") ]]; then
     echo "This script must be run as root!"
     exit 1
 fi
