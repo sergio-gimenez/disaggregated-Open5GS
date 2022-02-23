@@ -69,7 +69,7 @@ function setup_networking() {
         set -x
         # Add the IP address and enable the CP interface
         ip addr add 192.168.0.112/24 dev ens6
-        ip link set ens6 up
+        ip link set ens4 up
 
         # Enable IP forwarding
         sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
@@ -87,23 +87,6 @@ function setup_networking() {
         ip link set ogstun2 up
 
         iptables -t nat -A POSTROUTING -s 10.46.0.0/16 ! -o ogstun2 -j MASQUERADE
-
-        # Enable the UP interfaces
-        ip link set ens4 up
-        ip addr add 10.45.0.1/16 dev ens4
-
-        ip link set ens5 up
-        ip addr add 10.45.0.1/16 dev ens5
-
-        # Create the bridges to attach the tun interfaces to the frontend virtual NIC
-        brctl addbr br-tun
-        brctl addif br-tun ogstun
-        brctl addif br-tun ens4
-
-        brctl addbr br-tun2
-        brctl addif br-tun2 ogstun2
-        brctl addif br-tun2 ens5
-
         set +x
     fi
 
@@ -119,27 +102,18 @@ function setup_networking() {
         set -x
         # Enable the CP interface
         ip addr add 192.168.0.113/24 dev ens5
-        ip link set ens5 up
-
-        # Enable IP forwarding
-        sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-        sysctl -p
+        ip link set ens4 up
 
         # Create the tun interfaces to enable p2p for GTP
         ip tuntap add name ogstun3 mode tun
         ip addr add 10.47.0.1/16 dev ogstun3
         ip link set ogstun3 up
 
+        # Enable IP forwarding and NAPT.
+        # This seems like is enough to enable that the private IP network can talk with a destination public IP network.
+        sed -i 's/net.ipv4.ip_forward=0/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+        sysctl -p
         iptables -t nat -A POSTROUTING -s 10.47.0.0/16 ! -o ogstun3 -j MASQUERADE
-
-        # Enable the UP interfaces
-        ip addr add 10.47.0.1/16 dev ens4
-        ip link set ens4 up
-
-        # Create the bridges to attach the tun interfaces to the frontend virtual NIC
-        brctl addbr br-tun3
-        brctl addif br-tun3 ogstun3
-        brctl addif br-tun3 ens4
         set +x
     fi
 }
