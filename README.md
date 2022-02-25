@@ -1,6 +1,14 @@
-# Instructions
+# Disaggregated Open5Gs in KVM guests
 
-Build and install qemu with nmap support on the host machine.
+This is a deployment of an [Open5Gs](https://open5gs.org/) in separated KVM guests. This deployment is based on [Overview of Open5GS CUPS-enabled EPC Simulation Mobile Network](https://github.com/s5uishida/open5gs_epc_oai_sample_config). Check it for complete details about the deployment.
+
+This document is detailed the networking and the configuration of the KVM guests in order to be able to use [netmap](https://github.com/luigirizzo/netmap), as well of the automation of the deployment via bash scripts. 
+
+## Dependencies
+
+The KVM guests will be deployed via a QEMU-KVM netmap-enabled fork. To install it:
+
+Build and install qemu with netmap support on the host machine.
 
 ```source
 git clone https://github.com/netmap-unipi/qemu
@@ -10,137 +18,51 @@ make
 sudo make install
 ```
 
-Get base image:
+## Disaggregated Open5Gs in KVM guests on the same physical host
 
-```source
-wget https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
-```
 
-Create an overlay image:
+![open5gs_deployment.drawio.png](open5gs_deployment.drawio.png)
 
-```source
-qemu-img create -f qcow2 -b ubuntu-20.04-server-cloudimg-amd64.img clean_open5gs.img
-```
+There are two available types of networking: `normal` and `netmap`. The `normal` deployment follows a typical VM networking configuration by running a `virtio` driver as virtual NIC, a `tap` device as networking backend and finally a `linux-bridge` device as networking bridge. On the other hand, the `netmap` deployment uses the `ptnet` driver as virtual NIC, a `netmap-pipe` device as networking backend and finally a layer 2 switch implemnted from scratch as networking bridge.
+open5gs_deployment.drawio.png
 
-Resize image (20 GB minimum recommended):
+Let's start first building the VMs. To do so, run the `build_vms.sh` script as root. This will install the needed dependencies as well as the ubuntu cloud base image to build the VM from a pre-created image. If everything is ok, the script will create the VMs and start them in a new window. The credentials of the VM can be specified in the `user_data.yaml` file.
 
-```source
-qemu-img resize clean_open5gs.img +22G
-```
-
-Build a cloud init image from a conf file:
-
-```source
-cloud-localds open5gs_init.img user_data.yaml 
-```
-
-Instantiate the image:
-
-```source
-sudo qemu-system-x86_64 \
--hda ~/i2cat/disaggregated-Open5GS/clean_open5gs.img \
--hdb ~/i2cat/disaggregated-Open5GS/open5gs_init.img \
--m 2G --nographic --enable-kvm \
--serial file:endpoint1.log \
--device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::20021-:22
-```
-
-In order to install Open5GS on the image, you need to run the following commands:
-
-Install mongodb:
-
-```source
-sudo apt update
-sudo apt install mongodb
-sudo systemctl start mongodb
-sudo systemctl enable mongodb
-```
-
-Create the TUN device with the interface name ogstun (not persistent after rebooting):  
-
-```source
-sudo ip tuntap add name ogstun mode tun
-sudo ip addr add 10.45.0.1/16 dev ogstun
-sudo ip addr add 2001:db8:cafe::1/48 dev ogstun
-sudo ip link set ogstun up
-```
-
-Now install Open5GS using apt (for Ubuntu systems):
-
-```source
-sudo apt update
-sudo apt install software-properties-common
-sudo add-apt-repository ppa:open5gs/latest
-sudo apt update
-sudo apt install open5gs
-```
-
-Now, we create the other VMs based on the image we just set up:
-
-```source
-cp clean_open5gs.img vm1.img
-cp clean_open5gs.img vm2.img
-cp clean_open5gs.img vm3.img
-```
-
-Now we can instantiate the VMs to configure them:
-
-Caveats:
-
-* Minimum of 1GB RAM is recommended.
-* For some reason QEMU forces me to use the same MAC address in the management interface of all the VMs.
-
-```source
-sudo qemu-system-x86_64 \
-~/i2cat/disaggregated-Open5GS/vm1.img \
--m 2G --nographic --enable-kvm -cpu host \
--serial file:vm1.log \
--device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::20021-:22 \
-
-```
-
-```source
-sudo qemu-system-x86_64 \
--hda ~/i2cat/disaggregated-Open5GS/vm1.img \
--m 2G --nographic --enable-kvm -cpu host \
--serial file:vm1.log \
--device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2021-:22 \
--device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:01:01,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm1,id=data1,script=no,downscript=no
-```
-
-```source
-sudo qemu-system-x86_64 \
-~/i2cat/disaggregated-Open5GS/vm2.img \
--m 2G --nographic --enable-kvm -cpu host \
--serial file:vm2.log \
--device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2022-:22 \
--device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:02:01,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm2.1,id=data1,script=no,downscript=no \
--device virtio-net-pci,netdev=data2,mac=00:0a:0a:0a:02:02,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm2.2,id=data2,script=no,downscript=no
-```
-
-```source
-sudo qemu-system-x86_64 \
-~/i2cat/disaggregated-Open5GS/vm3.img \
--m 2G --nographic --enable-kvm -cpu host \
--serial file:vm3.log \
--device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2023-:22
-```
-
-```source
-sudo qemu-system-x86_64 \
-~/i2cat/disaggregated-Open5GS/vm4.img \
--m 2G --nographic --enable-kvm -cpu host \
--serial file:vm4.log \
--device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2024-:22
-```
-
-To connect via ssh:
+Now, ssh into the VM. In order to do so, run the following command:
 
 ```source
 ssh ubuntu@localhost -p 202X
 ```
 
-where X is the VM number.
+Where `X` is the VM number. For example, if we built the `vm1`, then the ssh query to access it will be `ssh ubuntu@localhost -p 2021`. Note also that `ubuntu` is the default user name for ubuntu cloud-images.
+
+Once inside the VM, first of all clone the repo and then we have to first install netmap (only if we want to use the netmap networking version). To install netmap, run the following script **without being root**.
+
+```source
+./install_netmap.sh
+```
+
+This will compile and insert the netmap kernel module into the VM in order to enable netmap-passthrough (i.e., make the guest-host communication using netmap work).
+
+Once netmap is installed, we can setup the networking. To do so, run the following script:
+
+```source
+sudo ./setup_vms.sh [vm1 vm2 vm3] [setup-net start]
+```
+
+* The `setup-net` option will start the needed networking. (More details on what's going on under the hood [here](https://github.com/s5uishida/open5gs_epc_oai_sample_config#changes-in-configuration-files-of-open5gs-epc-and-oai-ue--ran))
+
+* The `start` option will start Open5Gs.
+
+Finally, we need to enable the L2 network in the host.  For the `normal` networking, you just have to run the following script:
+
+```source
+sudo ./setup_host_net.sh
+```
+
+For the `netmap` networking, the `l2-switch` must be compiled from source and then executed.
+
+## Disaggregated Open5Gs in KVM guests on different physical hosts
 
 References used and nice to check:
 
