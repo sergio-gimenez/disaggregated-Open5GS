@@ -148,10 +148,10 @@ function setup_services() {
 # Install open5gs from apt repository (if not installed)
 if [ "$(dpkg -l | awk '/open5gs/ {print }' | wc -l)" -lt 1 ]; then
     echo " Open5GS not installed, installing... "
-    sudo apt update
-    sudo add-apt-repository ppa:open5gs/latest -y
-    sudo apt update
-    sudo apt install open5gs -y
+    apt update
+    add-apt-repository ppa:open5gs/latest -y
+    apt update
+    apt install open5gs -y
 fi
 
 if [ "$2" == "setup-net" ]; then
@@ -163,7 +163,7 @@ if [ "$2" == "setup-net" ]; then
     if modprobe netmap; then
         echo "netmap module loaded"
     else
-        echo "netmap module not loaded, please install netmap with passthrough support"
+        echo "netmap module not loaded, please install netmap with passthrough support\n The install_netmap.sh script can be used to install netmap for generic drivers with passthrough support."
         exit 1
     fi
 

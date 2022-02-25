@@ -93,7 +93,7 @@ elif [ "$2" == "netmap" ]; then
     fi
     NET_FRONTEND="ptnet-pci"
     NET_BACKEND="netmap"
-    BACK_IFNAME="vale1:0${NUM}{1" 
+    BACK_IFNAME="vale1:0${NUM}{1"
     IFUP_SCRIPTS=",passthrough=on"
 
 else
