@@ -160,12 +160,13 @@ if [ "$2" == "setup-net" ]; then
     apt install build-essential -y
     apt install net-tools -y
 
-    # install netmap
-    git clone https://github.com/luigirizzo/netmap.git
-    $(pwd)/netmap/configure --no-drivers --enable-ptnetmap
-    $(pwd)/netmap/make
-    sudo make install
-    
+    if modprobe netmap; then
+        echo "netmap module loaded"
+    else
+        echo "netmap module not loaded, please install netmap with passthrough support"
+        exit 1
+    fi
+
     setup_networking $1
     exit
 fi
