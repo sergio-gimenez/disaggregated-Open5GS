@@ -37,6 +37,5 @@ kill_qemu() {
     rm $PIDFILE
 
 }
-
 CUR_PATH=$(pwd)
 kill_qemu "$CUR_PATH"/"$1".pid

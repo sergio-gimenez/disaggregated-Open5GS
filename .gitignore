@@ -4,3 +4,4 @@ vms
 *.log
 old_*
 *.pid
+*.qcow2

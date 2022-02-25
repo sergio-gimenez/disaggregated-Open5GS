@@ -155,6 +155,17 @@ if [ "$(dpkg -l | awk '/open5gs/ {print }' | wc -l)" -lt 1 ]; then
 fi
 
 if [ "$2" == "setup-net" ]; then
+
+    # install c compiler
+    apt install build-essential -y
+    apt install net-tools -y
+
+    # install netmap
+    git clone https://github.com/luigirizzo/netmap.git
+    $(pwd)/netmap/configure --no-drivers --enable-ptnetmap
+    $(pwd)/netmap/make
+    sudo make install
+    
     setup_networking $1
     exit
 fi

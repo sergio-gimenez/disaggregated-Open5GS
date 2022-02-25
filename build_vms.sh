@@ -1,7 +1,7 @@
 #!/bin/bash
 
 display_usage() {
-    echo -e "\nUsage: $0 [vm1 vm2 vm3] \n"
+    echo -e "\nUsage: $0 [vm1 vm2 vm3] [normal netmap]\n"
 }
 
 # check whether user had supplied -h or --help . If yes display usage
@@ -17,7 +17,7 @@ if [[ "$EUID" -ne 0 ]]; then
 fi
 
 # if less than one arguments supplied, display usage
-if [ $# -le 0 ]; then
+if [ $# -le 1 ]; then
     echo "This script must be run with at least one argument."
     display_usage
     exit 1
@@ -27,6 +27,8 @@ CLOUD_BASE_IMG="ubuntu-20.04-server-cloudimg-amd64.img"
 CUR_PATH=$(pwd)
 MISSING=""
 FOUND=""
+VM_NAME="$1"
+NUM="${VM_NAME: -1}"
 
 checkdep() {
     local exe="$1" package="$2" upstream="$3"
@@ -66,45 +68,46 @@ if [ ! -f "${CUR_PATH}/${CLOUD_BASE_IMG}" ]; then
 fi
 
 # Create an overlay image
-qemu-img create -f qcow2 -b "$CLOUD_BASE_IMG" "$1".img
+qemu-img create -f qcow2 -b "$CLOUD_BASE_IMG" "$VM_NAME".img
 
-qemu-img resize "$1".img +22G
+qemu-img resize "$VM_NAME".img +22G
 
 # Build seed image with the user data and the networking config
 # TODO This net conf is not working
 # cloud-localds -v --network-config="$CUR_PATH"/net_conf_vm2.yaml \
-#     "$CUR_PATH"/seed_"$1".img "$CUR_PATH"/user-data.yaml
-cloud-localds "$CUR_PATH"/seed_"$1".img "$CUR_PATH"/user-data.yaml
+#     "$CUR_PATH"/seed_"$VM_NAME".img "$CUR_PATH"/user-data.yaml
+cloud-localds "$CUR_PATH"/seed_"$VM_NAME".img "$CUR_PATH"/user-data.yaml
 
-# Boot the VM
-if [ "$1" == "vm1" ]; then
-    sudo qemu-system-x86_64 \
-        -hda "$CUR_PATH"/"$1".img \
-        -hdb "$CUR_PATH"/seed_"$1".img \
-        -m 2G --enable-kvm -pidfile $1.pid \
-        -serial file:"$1".log \
-        -device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2021-:22 \
-        -device virtio-net-pci,netdev=data1,mac=00:0a:0a:0a:01:01,ioeventfd=on,mrg_rxbuf=on -netdev tap,ifname=vm1.cp,id=data1,script=no,downscript=no &
+set -x
+if [ "$2" == "normal" ]; then
+    NET_FRONTEND="virtio-net-pci"
+    NET_BACKEND="tap"
+    BACK_IFNAME=""$VM_NAME".cp"
+    IFUP_SCRIPTS=",script=no,downscript=no"
+
+elif [ "$2" == "netmap" ]; then
+    # Make sure netmap module is loaded
+    if ! lsmod | grep "netmap" &>/dev/null; then
+        echo "netmap module is not loaded. Loading."
+        modprobe netmap
+    fi
+    NET_FRONTEND="ptnet-pci"
+    NET_BACKEND="netmap"
+    BACK_IFNAME="vale1:0${NUM}{1" 
+    IFUP_SCRIPTS=",passthrough=on"
+
+else
+
+    echo "Unknown network type"
+    display_usage
+    exit 1
 fi
 
-# Boot the VM
-if [ "$1" == "vm2" ]; then
-    sudo qemu-system-x86_64 \
-        -hda "$CUR_PATH"/"$1".img \
-        -hdb "$CUR_PATH"/seed_"$1".img \
-        -m 2G --enable-kvm -pidfile $1.pid \
-        -serial file:"$1".log \
-        -device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2022-:22 \
-        -device virtio-net-pci,netdev=data3,mac=00:0a:0a:0a:02:03 -netdev tap,ifname=vm2.cp,id=data3,script=no,downscript=no &
-fi
-
-# Boot the VM
-if [ "$1" == "vm3" ]; then
-    sudo qemu-system-x86_64 \
-        -hda "$CUR_PATH"/"$1".img \
-        -hdb "$CUR_PATH"/seed_"$1".img \
-        -m 2G --enable-kvm -pidfile "$1".pid \
-        -serial file:"$1".log \
-        -device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::2023-:22 \
-        -device virtio-net-pci,netdev=data2,mac=00:0a:0a:0a:03:03 -netdev tap,ifname=vm3.cp,id=data2,script=no,downscript=no &
-fi
+# Boot the vm
+sudo qemu-system-x86_64 \
+    -hda "$CUR_PATH"/"$VM_NAME".img \
+    -hdb "$CUR_PATH"/seed_"$VM_NAME".img \
+    -m 2G --enable-kvm -pidfile $VM_NAME.pid \
+    -serial file:"$VM_NAME".log \
+    -device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::202"$NUM"-:22 \
+    -device "$NET_FRONTEND",netdev=data1,mac=00:0a:0a:0a:0"$NUM":01 -netdev $NET_BACKEND,ifname="$BACK_IFNAME",id=data1"$IFUP_SCRIPTS" &
