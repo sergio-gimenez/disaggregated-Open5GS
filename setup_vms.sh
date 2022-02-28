@@ -160,12 +160,13 @@ if [ "$2" == "setup-net" ]; then
     apt install build-essential -y
     apt install net-tools -y
 
-    if modprobe netmap; then
-        echo "netmap module loaded"
-    else
-        echo "netmap module not loaded, please install netmap with passthrough support\n The install_netmap.sh script can be used to install netmap for generic drivers with passthrough support."
-        exit 1
-    fi
+    # TODO figure out how/where to check if netmap is installed
+    # if modprobe netmap; then
+    #     echo "netmap module loaded"
+    # else
+    #     echo "netmap module not loaded, please install netmap with passthrough support\n The install_netmap.sh script can be used to install netmap for generic drivers with passthrough support."
+    #     exit 1
+    # fi
 
     setup_networking $1
     exit
