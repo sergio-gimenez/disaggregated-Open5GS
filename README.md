@@ -23,8 +23,30 @@ sudo make install
 
 ![open5gs_deployment.drawio.png](open5gs_deployment.drawio.png)
 
-There are two available types of networking: `normal` and `netmap`. The `normal` deployment follows a typical VM networking configuration by running a `virtio` driver as virtual NIC, a `tap` device as networking backend and finally a `linux-bridge` device as networking bridge. On the other hand, the `netmap` deployment uses the `ptnet` driver as virtual NIC, a `netmap-pipe` device as networking backend and finally a layer 2 switch implemnted from scratch as networking bridge.
-open5gs_deployment.drawio.png
+There are two available types of networking: `normal` and `netmap`. The `normal` deployment follows a typical VM networking configuration by running a `virtio` driver as virtual NIC, a `tap` device as networking backend and finally a `linux-bridge` device as networking bridge. On the other hand, the `netmap` deployment uses the `ptnet` driver as virtual NIC, a `netmap-pipe` device as networking backend and finally a layer 2 switch implemented from scratch as networking bridge.
+
+**TL;DR:**
+
+```source
+# Do same procedure for every VM (vm1, vm2, vm3)
+(host) $ sudo build_vms.sh vmX [normal|netmap]
+(host) $ ssh ubuntu@localhost -p 202X
+(guest) $ git clone https://github.com/sergio-gimenez/disaggregated-Open5GS.git
+(guest) $ cd disaggregated-Open5GS
+(guest) $ ./setup_vms.sh  vmX setup-net
+
+# Start the desired Open5GS services in each guest (vm1, vm2, vm3)
+(guest) $ ./start_vms.sh  vmX start
+
+# Enable networking by running a bridge/netmap-l2-switch in the host
+
+# normal networking:
+(host) $ sudo setup_nost_net.sh
+
+#netmap networking:
+(host) $ sudo l2-switch -i vale1:01}1 -i vale1:02}1 -i vale1:03}1
+# Switch needs to be compiled from source in from the RINA-OpenVerso repo
+```
 
 Let's start first building the VMs. To do so, run the `build_vms.sh` script as root. This will install the needed dependencies as well as the ubuntu cloud base image to build the VM from a pre-created image. If everything is ok, the script will create the VMs and start them in a new window. The credentials of the VM can be specified in the `user_data.yaml` file.
 
