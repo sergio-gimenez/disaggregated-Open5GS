@@ -20,31 +20,22 @@ if [ "$1" == "up" ]; then
     fi
 
     # Control Plane Bridge
-    sudo brctl addbr cpbr
-    sudo ip link set cpbr up
+    sudo brctl addbr ogsbr
+    sudo ip link set ogsbr up
 
     sudo ip link set vm1.cp up
-    sudo brctl addif cpbr vm1.cp
+    sudo brctl addif ogsbr vm1.cp
 
     sudo ip link set vm2.cp up
-    sudo brctl addif cpbr vm2.cp
+    sudo brctl addif ogsbr vm2.cp
 
     sudo ip link set vm3.cp up
-    sudo brctl addif cpbr vm3.cp
+    sudo brctl addif ogsbr vm3.cp
 
     brctl show
 fi
 
 if [ "$1" == "down" ]; then
-    # sudo ip link set vm1.cp down
-    # sudo brctl delif cpbr vm1.cp
-
-    # sudo ip link set vm2.cp down
-    # sudo brctl delif cpbr vm2.cp
-
-    # sudo ip link set vm3.cp down
-    # sudo brctl delif cpbr vm3.cp
-
-    sudo ip link set cpbr down
-    sudo brctl delbr cpbr
+    sudo ip link set ogsbr down
+    sudo brctl delbr ogsbr
 fi
