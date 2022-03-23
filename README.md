@@ -49,7 +49,15 @@ There are two available types of networking: `normal` and `netmap`. The `normal`
 
 ### Step by step deployment
 
-Let's start first building the VMs. To do so, run the `build_vms.sh` script as root. This will install the needed dependencies as well as the ubuntu cloud base image to build the VM from a pre-created image. If everything is ok, the script will create the VMs and start them in a new window. The credentials of the VM can be specified in the `user_data.yaml` file.
+Let's start first building the VMs. To do so, run the `build_vms.sh` script as root:
+
+```source
+sudo build_vms.sh vmX [normal|netmap]
+```
+
+Write either `normal` or `netmap` as the second argument for "normal" networking using linux bridges or for a netmap-based networking respectively.
+
+This will install the needed dependencies as well as the ubuntu cloud base image to build the VM from a pre-created image. If everything is ok, the script will create the VMs and start them in a new window. The credentials of the VM can be specified in the `user_data.yaml` file.
 
 Now, ssh into the VM. In order to do so, run the following command:
 
@@ -59,7 +67,13 @@ ssh ubuntu@localhost -p 202X
 
 Where `X` is the VM number. For example, if we built the `vm1`, then the ssh query to access it will be `ssh ubuntu@localhost -p 2021`. Note also that `ubuntu` is the default user name for ubuntu cloud-images.
 
-Once inside the VM, first of all clone the repo and then we have to first install netmap (only if we want to use the netmap networking version). To install netmap, run the following script **without being root**.
+Once inside the VM, first of all clone the repo:
+
+```source
+ubuntu@ubuntu:~$ git clone https://github.com/sergio-gimenez/disaggregated-Open5GS.git
+```
+
+Then, we have to first install netmap (only if we want to use the netmap networking version). To install netmap, run the following script **without being root**.
 
 ```source
 ./install_netmap.sh
@@ -77,13 +91,15 @@ sudo ./setup_vms.sh [vm1 vm2 vm3] [setup-net start]
 
 * The `start` option will start Open5Gs.
 
-Finally, we need to enable the L2 network in the host.  For the `normal` networking, you just have to run the following script:
+Finally, we need to enable the L2 network in the host.
 
-```source
-sudo ./setup_host_net.sh
-```
+* For the `normal` networking, you just have to run the following script:
 
-For the `netmap` networking, the `l2-switch` must be compiled from source and then executed.
+    ```source
+    sudo ./setup_host_net.sh
+    ```
+
+* For the `netmap` networking, the `l2-switch` must be compiled from source and then executed.
 
 ## Disaggregated Open5Gs in KVM guests on different physical hosts
 
