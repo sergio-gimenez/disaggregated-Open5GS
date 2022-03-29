@@ -103,6 +103,8 @@ Finally, we need to enable the L2 network in the host.
 
 ## Disaggregated Open5Gs in KVM guests on different physical hosts
 
+![physical_testbed_open5gs_deployment.drawio.png](physical_testbed_open5gs_deployment.drawio.png)
+
 References used and nice to check:
 
 * [Open5GS Quickstart](https://open5gs.org/open5gs/docs/guide/01-quickstart/)
