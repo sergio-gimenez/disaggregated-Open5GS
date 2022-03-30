@@ -73,7 +73,18 @@ Once inside the VM, first of all clone the repo:
 ubuntu@ubuntu:~$ git clone https://github.com/sergio-gimenez/disaggregated-Open5GS.git
 ```
 
-Then, we have to first install netmap (only if we want to use the netmap networking version). To install netmap, run the following script **without being root**.
+Then, we have to first install netmap (only if we want to use the netmap networking version). To install netmap, run the following commands:
+
+Or run the following commands:
+
+```source
+sudo apt install build-essential -y # Install make and the C compiler
+cd netmap
+./configure --no-drivers --enable-ptnetmap
+make
+sudo make install
+```
+Or run the `install_netmap` script **without being root**.
 
 ```source
 ./install_netmap.sh
