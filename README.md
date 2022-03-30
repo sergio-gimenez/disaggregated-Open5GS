@@ -84,6 +84,8 @@ cd netmap
 ./configure --no-drivers --enable-ptnetmap
 make
 sudo make install
+sudo depmod -a
+sudo modprobe netmap
 ```
 Or run the `install_netmap` script **without being root**.
 
