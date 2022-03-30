@@ -86,6 +86,7 @@ make
 sudo make install
 sudo depmod -a
 sudo modprobe netmap
+sudo ifconfig ens4 up
 ```
 Or run the `install_netmap` script **without being root**.
 
