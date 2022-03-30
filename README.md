@@ -79,6 +79,7 @@ Or run the following commands:
 
 ```source
 sudo apt install build-essential -y # Install make and the C compiler
+git clone https://github.com/luigirizzo/netmap.git
 cd netmap
 ./configure --no-drivers --enable-ptnetmap
 make
