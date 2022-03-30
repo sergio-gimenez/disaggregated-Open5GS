@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # Kill switch & IPCP
+echo "Killing L2-SW instance(s)"
 kill -9 $(pidof pidof l2-switch)
+
+echo "Killing IPCP instance"
 kill -9 $(pidof pidof ipcp)
 
 # Kill qemu vms
@@ -19,9 +22,17 @@ kill_qemu() {
 
 }
 
-kill_qemu vm1.pid
-kill_qemu vm2.pid
-kill_qemu vm3.pid
+files=(
+    "vm1.pid"
+    "vm2.pid"
+    "vm3.pid"
+)
+for file in "${files[@]}"; do
+    if [ -f $file ]; then
+        kill_qemu $file
+        echo "Killed $file"
+    fi
+done
 
 sleep 2
 echo
