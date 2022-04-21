@@ -26,6 +26,7 @@ fi
 CUR_PATH=$(pwd)
 VM_NAME="$1"
 NUM="${VM_NAME: -1}"
+BACK_IFNAME="$3"
 
 if [ "$2" == "normal" ]; then
     NET_FRONTEND="virtio-net-pci"
@@ -41,9 +42,11 @@ elif [ "$2" == "netmap" ]; then
     fi
     NET_FRONTEND="ptnet-pci"
     NET_BACKEND="netmap"
-    BACK_IFNAME="vale2:1}2"
+    if [ ! -n "$BACK_IFNAME" ]; then
+        BACK_IFNAME="vale2:1}2"
+        echo "Backend interface name not specified, using default: $BACK_IFNAME"
+    fi
     IFUP_SCRIPTS=",passthrough=on"
-
 else
 
     echo "Unknown network type"

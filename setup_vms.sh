@@ -42,13 +42,13 @@ function setup_networking() {
     PWD=$(pwd)
 
     if [ "$1" == "vm1" ]; then
-        rm $O5GS_CNF_PATH/mme.yaml
+        # rm $O5GS_CNF_PATH/mme.yaml
         cp $PWD/net_conf/mme.yaml $O5GS_CNF_PATH/
 
-        rm $O5GS_CNF_PATH/sgwc.yaml
+        # rm $O5GS_CNF_PATH/sgwc.yaml
         cp $PWD/net_conf/sgwc.yaml $O5GS_CNF_PATH/
 
-        rm $O5GS_CNF_PATH/smf.yaml
+        # rm $O5GS_CNF_PATH/smf.yaml
         cp $PWD/net_conf/smf.yaml $O5GS_CNF_PATH/
 
         set -x
@@ -58,13 +58,14 @@ function setup_networking() {
     fi
 
     if [ "$1" == "vm2" ]; then
-        mv $PWD/net_conf/vm2_sgwu.yaml net_conf/sgwu.yaml
-        rm $O5GS_CNF_PATH/sgwu.yaml
-        cp $PWD/net_conf/sgwu.yaml $O5GS_CNF_PATH/
+        # TODO Review this set up because after one execution is probably broken
+        # mv $PWD/net_conf/vm2_sgwu.yaml net_conf/sgwu.yaml
+        # rm $O5GS_CNF_PATH/sgwu.yaml
+        cp $PWD/net_conf/vm2_sgwu.yaml $O5GS_CNF_PATH/sgwu.yaml
 
-        mv $PWD/net_conf/vm2_upf.yaml net_conf/upf.yaml
-        rm $O5GS_CNF_PATH/upf.yaml
-        cp $PWD/net_conf/upf.yaml $O5GS_CNF_PATH/
+        # mv $PWD/net_conf/vm2_upf.yaml net_conf/upf.yaml
+        # rm $O5GS_CNF_PATH/upf.yaml
+        cp $PWD/net_conf/vm2_upf.yaml $O5GS_CNF_PATH/upf.yaml
 
         set -x
         # Add the IP address and enable the CP interface
@@ -91,13 +92,13 @@ function setup_networking() {
     fi
 
     if [ "$1" == "vm3" ]; then
-        mv $PWD/net_conf/vm3_sgwu.yaml net_conf/sgwu.yaml
-        rm $O5GS_CNF_PATH/sgwu.yaml
-        cp $PWD/net_conf/sgwu.yaml $O5GS_CNF_PATH/
+        # mv $PWD/net_conf/vm3_sgwu.yaml net_conf/sgwu.yaml
+        # rm $O5GS_CNF_PATH/sgwu.yaml
+        cp $PWD/net_conf/vm3_sgwu.yaml $O5GS_CNF_PATH/sgwu.yaml
 
-        mv $PWD/net_conf/vm3_upf.yaml net_conf/upf.yaml
-        rm $O5GS_CNF_PATH/upf.yaml
-        cp $PWD/net_conf/upf.yaml $O5GS_CNF_PATH/
+        # mv $PWD/net_conf/vm3_upf.yaml net_conf/upf.yaml
+        # rm $O5GS_CNF_PATH/upf.yaml
+        cp $PWD/net_conf/vm3_upf.yaml $O5GS_CNF_PATH/sgwu.yaml
 
         set -x
         # Enable the CP interface

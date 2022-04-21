@@ -29,6 +29,7 @@ MISSING=""
 FOUND=""
 VM_NAME="$1"
 NUM="${VM_NAME: -1}"
+BACK_IFNAME="$3"
 
 checkdep() {
     local exe="$1" package="$2" upstream="$3"
@@ -88,7 +89,7 @@ elif [ "$2" == "netmap" ]; then
     # Make sure netmap module is loaded
     if ! lsmod | grep "netmap" &>/dev/null; then
         echo "netmap module is not loaded. Loading."
-        if modprobe netmap ; then
+        if modprobe netmap; then
             echo "netmap module loaded."
         else
             echo "Failed to load netmap module, please compile and install it for your current kernel version: $(uname -r)."
@@ -97,9 +98,12 @@ elif [ "$2" == "netmap" ]; then
     fi
     NET_FRONTEND="ptnet-pci"
     NET_BACKEND="netmap"
-    # BACK_IFNAME="vale1:0${NUM}{1"
-    BACK_IFNAME="vale2:1}2"
-    IFUP_SCRIPTS=",passthrough=on"
+
+    if [ ! -n "$BACK_IFNAME" ]; then
+        BACK_IFNAME="vale2:1}2"
+        echo "Backend interface name not specified, using default: $BACK_IFNAME"
+    fi
+    IFUP_SCRIPTS=",passthrough=on" # The comma here is on purpose and mandatory
 
 else
 
