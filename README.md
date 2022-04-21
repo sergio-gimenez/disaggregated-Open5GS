@@ -27,8 +27,18 @@ There are two available types of networking: `normal` and `netmap`. The `normal`
 ### TL;DR
 
 ```source
+# Install netmap first if you haven't
+git clone https://github.com/luigirizzo/netmap.git
+cd netmap
+./configure --no-drivers --enable-ptnetmap
+make
+sudo make install
+sudo depmod -a
+sudo modprobe netmap
+cd ..
+
 # Do same procedure for every VM (vm1, vm2, vm3)
-(host) $ sudo build_vms.sh vmX [normal|netmap]
+(host) $ sudo ./build_vms.sh vmX [normal|netmap]
 (host) $ ssh ubuntu@localhost -p 202X
 (guest) $ git clone https://github.com/sergio-gimenez/disaggregated-Open5GS.git
 (guest) $ cd disaggregated-Open5GS
@@ -52,7 +62,7 @@ There are two available types of networking: `normal` and `netmap`. The `normal`
 Let's start first building the VMs. To do so, run the `build_vms.sh` script as root:
 
 ```source
-sudo build_vms.sh vmX [normal|netmap]
+sudo ./build_vms.sh vmX [normal|netmap]
 ```
 
 Write either `normal` or `netmap` as the second argument for "normal" networking using linux bridges or for a netmap-based networking respectively.
@@ -75,8 +85,6 @@ ubuntu@ubuntu:~$ git clone https://github.com/sergio-gimenez/disaggregated-Open5
 
 Then, we have to first install netmap (only if we want to use the netmap networking version). To install netmap, run the following commands:
 
-Or run the following commands:
-
 ```source
 sudo apt install build-essential -y # Install make and the C compiler
 git clone https://github.com/luigirizzo/netmap.git
@@ -86,9 +94,35 @@ make
 sudo make install
 sudo depmod -a
 sudo modprobe netmap
+sudo apt install net-tools # Just to have ifconfig command
 sudo ifconfig ens4 up
 ```
+
+To double check netmap-passthrough is working in the VM, you can do `ifconfig ens4` and the output:
+
+```source
+ubuntu@ubuntu:~/netmap$ ifconfig ens4
+ens4: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet6 fe80::20a:aff:fe0a:101  prefixlen 64  scopeid 0x20<link>
+        ether 00:0a:0a:0a:01:01  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 9  bytes 726 (726.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+```
+
+And see that the MAC address is the one we specified in the script (`00:0a:0a:0a:01:01`).
+
+Also, we can see that the `ptnet` driver is properly running by using the `ethtool` utility:
+
+```source
+
+```ubuntu@ubuntu:~/netmap$ ethtool -i ens4
+driver: ptnetmap-guest-drivers
+...
+```
 Or run the `install_netmap` script **without being root**.
+> Seems that `install_netmap.sh` does not work for some reason
 
 ```source
 ./install_netmap.sh
@@ -96,15 +130,15 @@ Or run the `install_netmap` script **without being root**.
 
 This will compile and insert the netmap kernel module into the VM in order to enable netmap-passthrough (i.e., make the guest-host communication using netmap work).
 
-Once netmap is installed, we can setup the networking. To do so, run the following script:
+Once netmap is installed, we can setup the networking. To do so, run the following script inside the VM:
 
 ```source
-sudo ./setup_vms.sh [vm1 vm2 vm3] [setup-net start]
+(VM) $ sudo ./setup_vms.sh [vm1 vm2 vm3] [setup-net start]
 ```
 
-* The `setup-net` option will start the needed networking. (More details on what's going on under the hood [here](https://github.com/s5uishida/open5gs_epc_oai_sample_config#changes-in-configuration-files-of-open5gs-epc-and-oai-ue--ran))
+* The `setup-net` option will start the needed networking (i.e., creating `tun` interface with appopiate names and addresses, etc.). (More details on what's going on under the hood [here](https://github.com/s5uishida/open5gs_epc_oai_sample_config#changes-in-configuration-files-of-open5gs-epc-and-oai-ue--ran))
 
-* The `start` option will start Open5Gs.
+* The `start` option will start the needed Open5Gs services.
 
 Finally, we need to enable the L2 network in the host.
 
