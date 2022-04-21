@@ -78,7 +78,6 @@ qemu-img resize "$VM_NAME".img +22G
 #     "$CUR_PATH"/seed_"$VM_NAME".img "$CUR_PATH"/user-data.yaml
 cloud-localds "$CUR_PATH"/seed_"$VM_NAME".img "$CUR_PATH"/user-data.yaml
 
-set -x
 if [ "$2" == "normal" ]; then
     NET_FRONTEND="virtio-net-pci"
     NET_BACKEND="tap"
@@ -89,7 +88,12 @@ elif [ "$2" == "netmap" ]; then
     # Make sure netmap module is loaded
     if ! lsmod | grep "netmap" &>/dev/null; then
         echo "netmap module is not loaded. Loading."
-        modprobe netmap
+        if modprobe netmap ; then
+            echo "netmap module loaded."
+        else
+            echo "Failed to load netmap module, please compile and install it for your current kernel version: $(uname -r)."
+            exit 1
+        fi
     fi
     NET_FRONTEND="ptnet-pci"
     NET_BACKEND="netmap"
