@@ -3,3 +3,4 @@
 old_*
 *.pid
 *.qcow2
+netmap
