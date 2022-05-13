@@ -59,5 +59,5 @@ sudo qemu-system-x86_64 \
     "$CUR_PATH"/"$VM_NAME".img \
     -m 2G --enable-kvm -pidfile $VM_NAME.pid \
     -serial file:"$VM_NAME".log \
-    -device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::202"$NUM"-:22 \
-    -device "$NET_FRONTEND",netdev=data1,mac=00:0a:0a:0a:0"$NUM":01 -netdev $NET_BACKEND,ifname="$BACK_IFNAME",id=data1"$IFUP_SCRIPTS" &
+    -device e1000,netdev=mgmt,mac=00:AA:BB:CC:01:99 -netdev user,id=mgmt,hostfwd=tcp::202"$NUM"-:22,hostfwd=tcp::3000-:3000 \
+    -device "$NET_FRONTEND",netdev=data1,mac=00:0a:0a:0a:0"$NUM":01, -netdev $NET_BACKEND,ifname="$BACK_IFNAME",id=data1"$IFUP_SCRIPTS" &
