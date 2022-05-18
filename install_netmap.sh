@@ -22,9 +22,10 @@ else
 fi
 
 git clone https://github.com/luigirizzo/netmap.git
-$(pwd)/netmap/configure --no-drivers --enable-ptnetmap
-make -C $(pwd)/netmap
-sudo make install -C  $(pwd)/netmap
+cd netmap
+./configure --no-drivers --enable-ptnetmap
+make
+sudo make install
 
 sudo depmod -a
 sudo modprobe netmap
